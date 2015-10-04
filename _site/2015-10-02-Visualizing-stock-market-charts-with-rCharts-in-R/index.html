@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Visualizing stock market charts with rCharts in R</title>
+
+  <meta name="author" content="Hao Ding" />
+  
+  
+
+  <link rel="alternate" type="application/rss+xml" title="dingh' blog - A virtual proof that name is awesome!" href="/feed.xml" />
+
+  
+    
+      <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" />
+    
+    
+  
+  
+    
+      <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    
+      <link rel="stylesheet" href="/css/main.css" />
+    
+  
+  
+  
+    
+	  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+    
+	  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+    
+  
+
+    
+  
+  
+  
+  
+  
+  <!-- Facebook OpenGraph tags -->
+  <meta property="og:title" content="Visualizing stock market charts with rCharts in R" />
+  <meta property="og:type" content="website" />
+  
+  
+  <meta property="og:url" content="http://username.github.io/2015-10-02-Visualizing-stock-market-charts-with-rCharts-in-R/" />
+  
+  
+  
+  <meta property="og:image" content="http://username.github.io/img/ICON.png" />
+  
+  
+</head>
+
+
+  <body>
+  
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="http://username.github.io">dingh' blog</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+	    
+        <li>
+		  <a href="/">Home</a>
+		</li>
+		
+        <li>
+		  <a href="/aboutme">About Me</a>
+		</li>
+		
+        <li>
+		  <a href="/contact">Contact</a>
+		</li>
+		
+      </ul>
+    </div>
+	
+	
+	<div class="avatar-container">
+	  <div class="avatar-img-border">
+	    <a href="http://username.github.io ">
+	      <img class="avatar-img" src="/img/ICON.png" />
+		</a>
+	  </div>
+	</div>
+	
+	
+  </div>
+</nav>  
+
+    <div role="main" class="container main-content">
+      <header class="header-post">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <div class="post-heading">
+        <h1>Visualizing stock market charts with rCharts in R</h1>
+        
+        <span class="post-meta">Posted on October 2, 2015</span>
+      </div>
+     </div>
+  </div>
+</header>
+
+<article>
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+	  <p>I came across <a href="http://rcharts.io/">rCharts</a> package developed by <a href="https://ramnathv.github.io/">Ramnath Vaidyanathan</a> early this year and quickly become a big fan of it. rCharts is a R interface to multiple javascript charting libraries, allowing one to quickly generate a interactive visualization in R environments. Currently the official rCharts supports may popular javascript charting libraries, however Highstock is not one of them.</p>
+
+<p>Ramnathv pointed out in the following <a href="https://github.com/ramnathv/rCharts/issues/320">thread</a>, that the work to integrate highstock has already been <a href="https://github.com/nemonominem/Highstock-rCharts-hack">done</a>. I download this implementation and did a few improvements.</p>
+
+<p>The following is an example of using HighStock-rCharts to visualize a stock and add couple TAs. You can check out the code from my <a href="https://github.com/dingh/HighStock-rCharts">github</a></p>
+
+<p>
+<iframe frameborder="0" width="800" height="560" sandbox="allow-same-origin allow-scripts" scrolling="no" seamless="seamless" src="/files/R/HighStock.test.html">
+</iframe>
+</p>
+
+<div class="highlight"><pre><code class="language-r" data-lang="r"><span class="kn">require</span><span class="p">(</span>rCharts<span class="p">)</span>
+<span class="kn">require</span><span class="p">(</span>quantmod<span class="p">)</span>
+<span class="kn">require</span><span class="p">(</span>plyr<span class="p">)</span>
+
+<span class="c1"># set working directory</span>
+<span class="kp">setwd</span><span class="p">(</span><span class="s">&#39;set the working director&#39;</span><span class="p">)</span>
+
+<span class="c1">## source the highstock class and plotting functions</span>
+<span class="c1"># Function sourceDir is defined in the Examples section of ?source:</span>
+sourceDir <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>path<span class="p">,</span> trace <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> <span class="kc">...</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kr">for</span> <span class="p">(</span>nm <span class="kr">in</span> <span class="kp">list.files</span><span class="p">(</span>path<span class="p">,</span> pattern <span class="o">=</span> <span class="s">&quot;[.][RrSsQq]$&quot;</span><span class="p">))</span> <span class="p">{</span>
+    <span class="kr">if</span><span class="p">(</span><span class="kp">trace</span><span class="p">)</span> <span class="kp">cat</span><span class="p">(</span>nm<span class="p">,</span><span class="s">&quot;:&quot;</span><span class="p">)</span>
+    <span class="kn">source</span><span class="p">(</span><span class="kp">file.path</span><span class="p">(</span>path<span class="p">,</span> nm<span class="p">),</span> <span class="kc">...</span><span class="p">)</span>
+    <span class="kr">if</span><span class="p">(</span><span class="kp">trace</span><span class="p">)</span> <span class="kp">cat</span><span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+sourceDir<span class="p">(</span>path <span class="o">=</span> <span class="s">&#39;highstock/R/&#39;</span><span class="p">)</span>
+
+<span class="c1">## Download data</span>
+<span class="c1"># Specify period of time we are interested in</span>
+startDate <span class="o">&lt;-</span> <span class="kp">as.Date</span><span class="p">(</span><span class="s">&quot;2010-01-01&quot;</span><span class="p">)</span>
+endDate   <span class="o">&lt;-</span> <span class="kp">as.Date</span><span class="p">(</span><span class="s">&quot;2013-12-31&quot;</span><span class="p">)</span>
+
+<span class="c1"># Define the tickers we are interested in</span>
+tickers <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span><span class="s">&#39;AAPL&#39;</span><span class="p">)</span>
+getSymbols<span class="p">(</span>tickers<span class="p">,</span> src <span class="o">=</span> <span class="s">&quot;google&quot;</span><span class="p">,</span> from <span class="o">=</span> startDate<span class="p">,</span> to <span class="o">=</span> endDate<span class="p">)</span>
+stocks <span class="o">&lt;-</span> <span class="kp">do.call</span><span class="p">(</span><span class="kp">rbind</span><span class="p">,</span> <span class="kp">lapply</span><span class="p">(</span>tickers<span class="p">,</span> getQData<span class="p">(</span>OHLCV<span class="p">)))</span>
+aapl <span class="o">&lt;-</span> <span class="kp">subset</span><span class="p">(</span>stocks<span class="p">,</span> stock<span class="o">==</span><span class="s">&#39;AAPL&#39;</span><span class="p">)</span>
+
+<span class="c1"># 1. Standard candle plot</span>
+p <span class="o">&lt;-</span> candlePlot<span class="p">(</span>data <span class="o">=</span> aapl<span class="p">,</span> name<span class="o">=</span><span class="s">&#39;AAPL&#39;</span><span class="p">);</span>p
+
+<span class="c1"># 2. add Volume to plot</span>
+hs.addVOL<span class="p">(</span>p<span class="p">,</span> data <span class="o">=</span> aapl<span class="p">,</span> height <span class="o">=</span> <span class="m">60</span><span class="p">);</span>p
+
+<span class="c1"># 3. add moving average</span>
+hs.addEMA<span class="p">(</span>p<span class="p">,</span> data <span class="o">=</span> aapl<span class="p">,</span> n <span class="o">=</span> <span class="m">10</span><span class="p">);</span>p
+
+<span class="c1"># 4. add BBands</span>
+hs.addBBands<span class="p">(</span>p<span class="p">,</span> data <span class="o">=</span> aapl<span class="p">,</span> n <span class="o">=</span> <span class="m">20</span><span class="p">,</span> sd <span class="o">=</span> <span class="m">2</span><span class="p">);</span>p
+
+<span class="c1"># 5. add MACD</span>
+hs.addMACD<span class="p">(</span>p<span class="p">,</span> data <span class="o">=</span> aapl<span class="p">);</span>p</code></pre></div>
+
+
+	</div>
+  </div>
+</article>
+
+<div class="row">
+  <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <ul class="pager blog-pager">
+      
+      <li class="previous">
+        <a href="/2015-10-01-Hello-World" data-toggle="tooltip" data-placement="top" title="Hello World">&larr; Previous Post</a>
+      </li>
+      
+      
+    </ul>
+  </div>
+</div>
+
+
+<div class="row disqus-comments">
+  <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    
+
+  </div>
+</div>
+
+
+    </div>
+
+    <footer>
+  <div class="container beautiful-jekyll-footer">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          <li>
+            <a href="https://www.facebook.com/yourname" title="Facebook">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+          
+          <li>
+            <a href="https://github.com/yourname" title="GitHub">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+		  
+          <li>
+            <a href="https://twitter.com/yourname" title="Twitter">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+		  
+          <li>
+            <a href="mailto:tin.dinghao@gmail.com" title="Email me">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+		  
+		  
+		  
+		  <li>
+			<a href="/feed.xml" title="RSS">
+			  <span class="fa-stack fa-lg">
+				<i class="fa fa-circle fa-stack-2x"></i>
+				<i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+			  </span>
+			</a>
+		  </li>		
+          		  
+        </ul>
+        <p class="copyright text-muted">
+		  Hao Ding
+		  &nbsp;&bull;&nbsp;
+		  2015
+		  
+		  
+		  &nbsp;&bull;&nbsp;
+		  <a href="http://username.github.io">MyWebsite.com</a>
+		  
+	    </p>
+		<p class="theme-by text-muted">
+		  Theme by
+		  <a href="https://github.com/daattali/beautiful-jekyll">beautiful-jekyll</a>
+		</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  
+    
+
+
+  
+	<script src="/js/jquery-1.11.2.min.js"></script>
+  
+	<script src="/js/bootstrap.min.js"></script>
+  
+	<script src="/js/main.js"></script>
+  
+
+
+
+
+
+
+
+  
+  </body>
+</html>

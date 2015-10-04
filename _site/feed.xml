@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>dingh' blog</title>
+    <description>A virtual proof that name is awesome!</description>
+    <link>http://username.github.io</link>
+    <atom:link href="http://username.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    
+      <item>
+        <title>Visualizing stock market charts with rCharts in R</title>
+        <description>
+          
+          I came across rCharts package developed by Ramnath Vaidyanathan early this year and quickly become a big fan of it. rCharts is a R interface to multiple javascript charting libraries, allowing one to quickly generate a interactive visualization in R environments. Currently the official rCharts supports may popular javascript charting...
+        </description>
+        <pubDate>Fri, 02 Oct 2015 00:00:00 -0700</pubDate>
+        <link>http://username.github.io/2015-10-02-Visualizing-stock-market-charts-with-rCharts-in-R</link>
+        <guid isPermaLink="true">http://username.github.io/2015-10-02-Visualizing-stock-market-charts-with-rCharts-in-R</guid>
+      </item>
+    
+      <item>
+        <title>Hello World</title>
+        <description>
+          
+          Welcome to the first post of the dingh blog. The purpose of starting this blog is to document and share some of my projects. As recently I came across a wonderful paper written by Brian G. Peterson. The article emphasizes the importance of the précis document and systematically evaluation in...
+        </description>
+        <pubDate>Thu, 01 Oct 2015 00:00:00 -0700</pubDate>
+        <link>http://username.github.io/2015-10-01-Hello-World</link>
+        <guid isPermaLink="true">http://username.github.io/2015-10-01-Hello-World</guid>
+      </item>
+    
+  </channel>
+</rss>
