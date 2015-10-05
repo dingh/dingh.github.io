@@ -10,7 +10,63 @@
         <title>Visualizing stock market charts with rCharts in R</title>
         <description>
           
-          I came across rCharts package developed by Ramnath Vaidyanathan early this year and quickly become a big fan of it. rCharts is a R interface to multiple javascript charting libraries, allowing one to quickly generate a interactive visualization in R environments. Currently the official rCharts supports may popular javascript charting...
+          I came across rCharts package developed by Ramnath Vaidyanathan early this year and quickly become a big fan of it. rCharts is a R interface to multiple javascript charting libraries, allowing one to quickly generate a interactive visualization in R environments. Currently the official rCharts supports may popular javascript charting libraries, however Highstock is not one of them.
+
+Ramnathv pointed out in the thread, that the work to integrate highstock has already been done. I download this implementation and did a few improvements.
+
+The following is an example of using HighStock-rCharts to visualize a stock and add couple TAs.
+You can check out the code from my github
+
+
+
+
+
+
+require(rCharts)
+require(quantmod)
+require(plyr)
+
+# set working directory
+setwd(&amp;#39;set the working director&amp;#39;)
+
+## source the highstock class and plotting functions
+# Function sourceDir is defined in the Examples section of ?source:
+sourceDir &amp;lt;- function(path, trace = TRUE, ...) {
+  for (nm in list.files(path, pattern = &amp;quot;[.][RrSsQq]$&amp;quot;)) {
+    if(trace) cat(nm,&amp;quot;:&amp;quot;)
+    source(file.path(path, nm), ...)
+    if(trace) cat(&amp;quot;\n&amp;quot;)
+  }
+}
+sourceDir(path = &amp;#39;highstock/R/&amp;#39;)
+
+## Download data
+# Specify period of time we are interested in
+startDate &amp;lt;- as.Date(&amp;quot;2010-01-01&amp;quot;)
+endDate   &amp;lt;- as.Date(&amp;quot;2013-12-31&amp;quot;)
+
+# Define the tickers we are interested in
+tickers &amp;lt;- c(&amp;#39;AAPL&amp;#39;)
+getSymbols(tickers, src = &amp;quot;google&amp;quot;, from = startDate, to = endDate)
+stocks &amp;lt;- do.call(rbind, lapply(tickers, getQData(OHLCV)))
+aapl &amp;lt;- subset(stocks, stock==&amp;#39;AAPL&amp;#39;)
+
+# 1. Standard candle plot
+p &amp;lt;- candlePlot(data = aapl, name=&amp;#39;AAPL&amp;#39;);p
+
+# 2. add Volume to plot
+hs.addVOL(p, data = aapl, height = 60);p
+
+# 3. add moving average
+hs.addEMA(p, data = aapl, n = 10);p
+
+# 4. add BBands
+hs.addBBands(p, data = aapl, n = 20, sd = 2);p
+
+# 5. add MACD
+hs.addMACD(p, data = aapl);p
+
+
         </description>
         <pubDate>Fri, 02 Oct 2015 00:00:00 -0700</pubDate>
         <link>http://dingh.github.io//2015-10-02-Visualizing-stock-market-charts-with-rCharts-in-R</link>
@@ -21,7 +77,17 @@
         <title>Hello World</title>
         <description>
           
-          Welcome to the first post of the dingh blog. The purpose of starting this blog is to document and share some of my projects. As recently I came across a wonderful paper written by Brian G. Peterson. The article emphasizes the importance of the précis document and systematically evaluation in...
+          Welcome to the first post of the dingh blog. The purpose of starting this blog is to document and share some of my projects.
+
+As recently I came across a wonderful paper written by Brian G. Peterson. The article emphasizes the importance of the précis document and systematically evaluation in the process of replicating the research of others. These are the missing pieces in my own work.
+
+I have been working on some visualization and modeling projects. However I never spent time to document these works, which leads to a lot of waste of efforts.
+Hopefully by starting this blog can help me to articulate my ideas.
+
+Any constructive criticism is welcome.
+
+Thanks
+
         </description>
         <pubDate>Thu, 01 Oct 2015 00:00:00 -0700</pubDate>
         <link>http://dingh.github.io//2015-10-01-Hello-World</link>
