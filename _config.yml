@@ -29,6 +29,7 @@ avatar: "/img/ICON.png"
 navbar-links:
   Home: ""
   About Me: "aboutme"
+  Blogroll: "blogroll"
   Contact: "contact"
 
 # --- Footer options --- #
