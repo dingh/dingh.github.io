@@ -7,9 +7,10 @@ tags: [R, visualization, rCharts]
 
 I came across [rCharts](http://rcharts.io/) package developed by [Ramnath Vaidyanathan](https://ramnathv.github.io/) early this year and quickly become a big fan of it. rCharts is a R interface to multiple javascript charting libraries, allowing one to quickly generate a interactive visualization in R environments. Currently the official rCharts supports may popular javascript charting libraries, however Highstock is not one of them.
 
-Ramnathv pointed out in the following [thread](https://github.com/ramnathv/rCharts/issues/320), that the work to integrate highstock has already been [done](https://github.com/nemonominem/Highstock-rCharts-hack). I download this implementation and did a few improvements.  
+Ramnathv pointed out in the [thread](https://github.com/ramnathv/rCharts/issues/320), that the work to integrate highstock has already been [done](https://github.com/nemonominem/Highstock-rCharts-hack). I download this implementation and did a few improvements.  
 
-The following is an example of using HighStock-rCharts to visualize a stock and add couple TAs. You can check out the code from my [github](https://github.com/dingh/HighStock-rCharts)
+The following is an example of using HighStock-rCharts to visualize a stock and add couple TAs.
+You can check out the code from my [github](https://github.com/dingh/HighStock-rCharts)
 
 <p>
 <iframe frameborder="0" width="800" height="560"
